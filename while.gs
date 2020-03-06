@@ -69,15 +69,21 @@ ns_stm  (Inter (While b ss) s)
 -- Task 1 -----------------------------------------------------------------
 
 ns_stm  (Inter (Repeat ss b) s)
-        = Final s'', if b_val b s
+        = Final s'', if b_val b s''
           where Final s''   = ns_stm (Inter ss s)
 
-ns_stm  (Inter (Repeat ss b) s)
-        = Final s'', if not(b_val b s)
+ns_stm (Inter (Repeat ss b) s)
+        = Final s'', if not(b_val b s')
           where Final s'    = ns_stm (Inter ss s)
-                Final s''   = ns_stm (Inter (If b Skip (Repeat ss b)) s')
+                Final s''   = ns_stm (Inter (Repeat ss b) s') 
 
----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+-- [If-Construct Alternative]
+-- ns_stm  (Inter (Repeat ss b) s)
+--        = Final s'', if not(b_val b s)
+--          where Final s'    = ns_stm (Inter ss s)
+--                Final s''   = ns_stm (Inter (If b Skip (Repeat ss b)) s')
+----------------------------------------------------------------------------
 
 s_ns ss s = s'
             where Final s' = ns_stm (Inter ss s)
