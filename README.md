@@ -10,6 +10,9 @@ Formal Semantics Labs in Gofer
 - Enable Haskell-like syntax: `? :s -S`
 - Load source file: `? :l while.gs`
 
-### Task 1
+### Task 1 - Repeat - Natural Semantics
 - `task1` implements the factorial function using the `repeat`-construct
 - `s_task1 "y"` retrieves the value for variable `y` in state `s_task1` 
+
+### Task 2 - Repeat - Structural Operational Semantics
+- `s_task2 "y"` retrieves the value of variable `y` in state `s_task2`
