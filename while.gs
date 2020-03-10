@@ -37,6 +37,8 @@ b_val (And b1 b2) s = True,     if b_val b1 s == True &&
                     = False,    if b_val b1 s == False ||
                                    b_val b2 s == False
 
+-- Natural Semantics ------------------------------------------------------
+
 data Config = Inter Stm State | Final State
 
 ns_stm  :: Config -> Config
@@ -67,7 +69,6 @@ ns_stm  (Inter (While b ss) s)
         = Final s, if not(b_val b s)
 
 -- Task 1 -----------------------------------------------------------------
-
 ns_stm  (Inter (Repeat ss b) s)
         = Final s'', if b_val b s''
           where Final s''   = ns_stm (Inter ss s)
@@ -76,14 +77,7 @@ ns_stm (Inter (Repeat ss b) s)
         = Final s'', if not(b_val b s')
           where Final s'    = ns_stm (Inter ss s)
                 Final s''   = ns_stm (Inter (Repeat ss b) s') 
-
-----------------------------------------------------------------------------
--- [If-Construct Alternative]
--- ns_stm  (Inter (Repeat ss b) s)
---        = Final s'', if not(b_val b s)
---          where Final s'    = ns_stm (Inter ss s)
---                Final s''   = ns_stm (Inter (If b Skip (Repeat ss b)) s')
-----------------------------------------------------------------------------
+-- Task 1 -----------------------------------------------------------------
 
 s_ns ss s = s'
             where Final s' = ns_stm (Inter ss s)
@@ -99,12 +93,63 @@ factorial = Comp (Ass "y" (N 1))
 s_fac = s_ns factorial s_init
 
 -- Task 1 -----------------------------------------------------------------
-
 task1 = Comp (Ass "y" (N 1)) 
              (Repeat 
                 (Comp (Ass "y" (Mult (V "y") (V "x")))
                       (Ass "x" (Sub (V "x") (N 1))))
                 (Le (V "x") (N 0)))
 s_task1 = s_ns task1 s_init
-
 -- Task 1 -----------------------------------------------------------------
+
+-- Structural Operational Semantics ---------------------------------------
+
+is_Final (Inter ss s) = False
+is_Final (Final s) = True
+
+sos_stm :: Config -> Config
+
+sos_stm (Inter (Ass x a) s)
+        = Final (update s x (a_val a s))
+
+sos_stm (Inter (Skip) s)
+        = Final s
+
+sos_stm (Inter (Comp ss1 ss2) s)
+        = Inter (Comp ss1' ss2) s', if not(is_Final (sos_stm (Inter ss1 s)))
+          where Inter ss1' s' = sos_stm (Inter ss1 s)
+
+sos_stm (Inter (Comp ss1 ss2) s)
+        = Inter ss2 s', if is_Final (sos_stm (Inter ss1 s))
+          where Final s' = sos_stm (Inter ss1 s)
+
+sos_stm (Inter (If b ss1 ss2) s)
+        = Inter ss1 s, if b_val b s
+
+sos_stm (Inter (If b ss1 ss2) s)
+        = Inter ss2 s, if not(b_val b s)
+
+sos_stm (Inter (While b ss) s)
+        = Inter (If b (Comp ss (While b ss)) Skip) s
+
+-- Task 2 -----------------------------------------------------------------
+-- <repeat S until b, s> 
+-- => <S;if b then skip else (repeat S until b), s>
+sos_stm (Inter (Repeat ss b) s)
+        = Inter (Comp ss (If b Skip (Repeat ss b))) s
+-- Task 2 -----------------------------------------------------------------
+
+deriv_seq (Inter ss s)
+        = (Inter ss s) : (deriv_seq (sos_stm (Inter ss s)))
+deriv_seq (Final s)
+        = [Final s]
+
+s_sos ss s = s'
+             where Final s' = last (deriv_seq (Inter ss s))
+
+fac_seq = deriv_seq (Inter factorial s_init)
+
+s_fac' = s_sos factorial s_init
+
+-- Task 2 -----------------------------------------------------------------
+s_task2 = s_sos task1 s_init
+-- Task 2 -----------------------------------------------------------------
