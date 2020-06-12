@@ -16,3 +16,6 @@ Formal Semantics Labs in Gofer
 
 ### Task 2 - Repeat - Structural Operational Semantics
 - `s_task2 "y"` retrieves the value of variable `y` in state `s_task2`
+
+### Task 3 - Repeat - Denotational Semantics
+- `s_task3 "y"` retrieves the value of variable `y` in state `s_task3`
