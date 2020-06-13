@@ -177,3 +177,25 @@ s_final = s_ds factorial s_init
 -- Task 3 -----------------------------------------------------------------
 s_task3 = s_ds task1 s_init
 -- Task 3 -----------------------------------------------------------------
+
+
+type Cont = State -> State
+type Env_E = Var -> Cont
+
+-- Task 4 -----------------------------------------------------------------
+s_cs :: Stm -> Env_E -> (Cont -> Cont)
+s_cs (Ass x a) env_e = \c s -> c (update s x (a_val a s))
+s_cs Skip env_e = \c s -> c s
+s_cs (Comp ss1 ss2) env_e = comp (s_cs ss1 env_e) (s_cs ss2 env_e)  
+s_cs (If b ss1 ss2) env_e = \c s -> if b_val b s then s_cs ss1 env_e c s else s_cs ss2 env_e c s
+s_cs (While b ss) env_e = fix (\g c s -> if b_val b s then (s_cs ss env_e (g c) s) else c s)
+s_cs (Block ss e ss_e) env_e = \c s -> s_cs ss (update env_e e (s_cs ss_e env_e c)) c s
+s_cs (Raise e) env_e = \c s -> (env_e e) s
+
+test = Block (If (Le (V "x") (N 0)) Skip (Raise "exit"))
+             "exit" (Ass "x" (N 0))
+
+e_init x = id
+c_init = id
+s_final' = s_cs test e_init c_init s_init
+-- Task 4 -----------------------------------------------------------------
