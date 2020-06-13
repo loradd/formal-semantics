@@ -19,3 +19,6 @@ Formal Semantics Labs in Gofer
 
 ### Task 3 - Repeat - Denotational Semantics
 - `s_task3 "y"` retrieves the value of variable `y` in state `s_task3`
+
+### Task 4 - Continuation style semantics for Exc
+- `s_final' "x"` retrieves the value of variable `x` in state `s_final'` (0)
