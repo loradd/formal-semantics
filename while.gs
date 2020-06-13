@@ -153,3 +153,27 @@ s_fac' = s_sos factorial s_init
 -- Task 2 -----------------------------------------------------------------
 s_task2 = s_sos task1 s_init
 -- Task 2 -----------------------------------------------------------------
+
+            comp :: (a -> b) -> (c -> a) -> (c -> b)
+comp f g x = f (g x)
+
+fix ff = ff (fix ff)
+
+s_ds :: Stm -> State -> State
+s_ds (Ass x a)      = \s -> update s x (a_val a s)
+s_ds Skip           = \s -> s 
+s_ds (Comp ss1 ss2) = comp (s_ds ss2) (s_ds ss1)
+s_ds (If b ss1 ss2) = \s -> if b_val b s then s_ds ss1 s else s_ds ss2 s
+s_ds (While b ss)   = fix (\g s -> if b_val b s then g (s_ds ss s) else s)  
+
+-- Task 3 -----------------------------------------------------------------
+-- S_ds[|repeat S until b|] = FIX F
+--   where F g = cond(B[|b|], id, g . S_ds[|S|])
+s_ds (Repeat ss b)  = fix (\g s -> if b_val b s then s else g (s_ds ss s)) 
+-- Task 3 -----------------------------------------------------------------
+
+s_final = s_ds factorial s_init
+
+-- Task 3 -----------------------------------------------------------------
+s_task3 = s_ds task1 s_init
+-- Task 3 -----------------------------------------------------------------
