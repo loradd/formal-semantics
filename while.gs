@@ -154,7 +154,7 @@ s_fac' = s_sos factorial s_init
 s_task2 = s_sos task1 s_init
 -- Task 2 -----------------------------------------------------------------
 
-            comp :: (a -> b) -> (c -> a) -> (c -> b)
+comp :: (a -> b) -> (c -> a) -> (c -> b)
 comp f g x = f (g x)
 
 fix ff = ff (fix ff)
